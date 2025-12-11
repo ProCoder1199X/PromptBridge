@@ -1,9 +1,25 @@
 import { GoogleGenAI } from "@google/genai";
 import { SYSTEM_PROMPT, GEMINI_MODEL } from "../constants";
 
-// Initialize the Gemini API client
-// The API key is injected automatically via the environment variable process.env.API_KEY
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Safely retrieve API Key
+const getApiKey = () => {
+  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+    return process.env.API_KEY;
+  }
+  // In some build environments or safe shims
+  if (typeof window !== 'undefined' && (window as any).process && (window as any).process.env) {
+    return (window as any).process.env.API_KEY;
+  }
+  return '';
+};
+
+const API_KEY = getApiKey();
+
+// Initialize the Gemini API client only if key exists to prevent immediate crash
+let ai: GoogleGenAI | null = null;
+if (API_KEY) {
+  ai = new GoogleGenAI({ apiKey: API_KEY });
+}
 
 /**
  * Optimizes the given user prompt using Gemini Flash 2.0 (gemini-2.5-flash).
@@ -12,6 +28,10 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
  * @returns The optimized prompt text.
  */
 export const optimizePrompt = async (userPrompt: string): Promise<string> => {
+  if (!ai) {
+     throw new Error("API Key is missing. Please configure process.env.API_KEY.");
+  }
+
   if (!userPrompt.trim()) {
     throw new Error("Please enter a prompt to optimize.");
   }

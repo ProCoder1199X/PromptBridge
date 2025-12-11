@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PromptBridge ⚡</title>
     <meta name="description" content="AI understands you now. Transform messy text into optimized prompts." />
+    <script>
+      // Polyfill process for browser environments to prevent crashes
+      window.process = window.process || { env: {} };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -92,5 +96,6 @@
 </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>
